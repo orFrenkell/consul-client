@@ -139,6 +139,7 @@ public class KeyValueClient extends BaseClient {
         return Optional.empty();
     }
 
+
     /**
      * Asynchronously retrieves a {@link com.orbitz.consul.model.kv.Value} for a specific key
      * from the key/value store.
@@ -231,11 +232,27 @@ public class KeyValueClient extends BaseClient {
      * consul response headers.
      */
     public ConsulResponse<List<Value>> getConsulResponseWithValues(String key, QueryOptions queryOptions) {
+        return getConsulResponseWithValues(key, queryOptions, NOT_FOUND_404);
+    }
+
+    /**
+     * Retrieves a {@link ConsulResponse} with a list of {@link Value} objects along with
+     * consul response headers for a specific key from the key/value store.
+     * <p>
+     * GET /v1/kv/{key}?recurse
+     *
+     * @param key          The key to retrieve.
+     * @param queryOptions The query options to use.
+     * @param okCodes      the valid codes
+     * @return A {@link ConsulResponse} with a list of zero to many {@link Value} objects and
+     * consul response headers.
+     */
+    public ConsulResponse<List<Value>> getConsulResponseWithValues(String key, QueryOptions queryOptions, Integer... okCodes) {
         Map<String, Object> query = queryOptions.toQuery();
 
         query.put("recurse", "true");
 
-        return http.extractConsulResponse(api.getValue(trimLeadingSlash(key), query), NOT_FOUND_404);
+        return http.extractConsulResponse(api.getValue(trimLeadingSlash(key), query), okCodes);
     }
 
     /**
